@@ -1,0 +1,114 @@
+#!/bin/bash
+#licence cc-nc-sa-by  by Michaela Stehmann
+anfangvonseite()
+{
+echo -e "<html>\n<head><title>$1</title></head>\n<body>" >$1/$1.html
+}
+endevonseite()
+{
+echo -e "\n</body></html>" >> $1/$1.html
+}
+ueberschrieftdrei()
+{
+echo "<h3>$2</h3>" >> $1/$1.html
+}
+ueberschriefteins()
+{
+echo "<h1>$2</h1>" >> $1/$1.html
+}
+listenbegin()
+{
+echo "<ul>" >> $1.html
+}
+listenpunkte()
+{
+if [ "$2" != "q" ] ; then 
+echo "<li>$2</li>" >>$1/$1.html
+fi
+}
+listenende()
+{
+echo "</ul>" >> $1/$1.html
+}
+erstellen()
+{
+	mkdir $1
+	touch $1/$1_zutaten.txt 
+	touch $1/$1_zubereitung.txt
+	touch $1/$1_hinweis.txt
+	touch $1/$1_rezept.txt
+	anfangvonseite "$1"
+}
+fuellen()
+{
+zaehler=1
+ende=1
+ueberschrieftdrei "$1" "Zutaten"
+while [ $ende -lt 2 ]; do
+echo "Welche ist die $zaehler. Zutat hat das Rezept? Wenn alle Zutaten eingegeben sind, geben sie bitte q ein!"
+read zutat
+listenbegin "$1"
+if [ "$zutat" != "q" ] ; then 
+		echo "Welche Menge hat die $zutat?"
+		read menge
+		echo -e "$zaehler. \t $menge \t $zutat" >>$1/$1_zutaten.txt
+		listenpunkte "$1" "$zaehler. $menge $zutat"
+		zaehler=$((zaehler+1))
+	else 
+		ende=3
+	fi
+done
+listenende "$1"
+ende=1
+zaehler=1
+ueberschrieftdrei "$1" "Zubereitung"
+while [ $ende -lt 2 ]; do
+echo "Was ist der $zaehler. Zubereitungsschritt? Wenn alle Zubereitungsschritte eingegeben sind, geben sie bitte q ein!"
+read zubereitung
+listenbegin "$1" 
+if [ "$zubereitung" != "q" ] ; then 
+		echo -e "$zaehler. $zubereitung" >>$1/$1_zubereitung.txt
+		listenpunkte "$1" "$zaehler. $zubereitung"
+		zaehler=$((zaehler+1))
+	else 
+		ende=3
+	fi
+done
+listenende "$1"
+ende=1
+zaehler=1
+ueberschrieftdrei "$1" "Hinweise"
+while [ $ende -lt 2 ]; do
+echo "Was ist der $zaehler. Hinweiß für das Rezept? Wenn alle Hinweiße eingegeben sind, geben sie bitte q ein!"
+read hinweis
+listenbegin "$1"
+if [ "$hinweis" != "q" ] ; then 
+		echo -e "$zaehler. $hinweis" >>$1/$1_hinweis.txt
+		listenpunkte "$1" "$zaehler. $hinweis"	
+		zaehler=$((zaehler+1))
+	else 
+		ende=3
+	fi
+done
+listenende "$1"
+}
+zusammenfassen()
+{
+inhalt=`cat $1/$1_zutaten.txt`
+echo -e "Zutaten \n$inhalt \n" >> $1/$1_rezept.txt
+inhalt=`cat $1/$1_zubereitung.txt`
+echo -e "Zubereitung \n$inhalt \n " >> $1/$1_rezept.txt
+inhalt=`cat $1/$1_hinweis.txt`
+echo -e "Hinweiße \n$inhalt \n " >> $1/$1_rezept.txt
+}
+ansehn()
+{
+inhalt=`cat $1/$1_rezept.txt`
+echo -e "$1 \n$inhalt \n"
+}
+erstellen "$1"
+fuellen "$1" 
+endevonseite "$1"
+zusammenfassen "$1"
+ansehn "$1"
+
